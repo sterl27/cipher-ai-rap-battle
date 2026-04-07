@@ -1,0 +1,19 @@
+{
+    "name": "cipher-ai-rap-battle",
+    "version": "1.0.0",
+    "description": "The world's first realtime AI rap battle platform",
+    "scripts": {
+          "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+          "frontend-dev": "cd frontend && next dev",
+          "backend-dev": "cd backend && node server.js",
+          "build": "npm run build --prefix frontend",
+          "start": "npm run start --prefix frontend"
+    },
+    "dependencies": {
+          "concurrently": "^8.0.0"
+    },
+    "devDependencies": {},
+    "engines": {
+          "node": ">=18.0.0"
+    }
+}
