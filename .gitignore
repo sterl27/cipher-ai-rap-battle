@@ -34,3 +34,4 @@ logs/
 # Development
 .cache/
 .turbo/
+.vercel

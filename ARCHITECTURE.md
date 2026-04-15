@@ -1,103 +1,473 @@
-# Cipher.AI - Architecture & Project Structure
+# Cipher.AI x Musaix Pro - Architecture & Technical Design
 
 ## Overview
-Cipher.AI is a real-time AI rap battle platform where users test their lyrical skills against an adaptive neural network. The platform uses WebSockets for low-latency communication and OpenAI for intelligent rap generation.
 
-## Project Structure
+**Cipher.AI x Musaix Pro** is a modern, agentic ecosystem for music production and AI-driven creative workflows. The platform has evolved from a real-time AI rap battle platform into a comprehensive creative suite featuring advanced analytics, AI collaboration tools, and a revolutionary holographic UI framework.
 
-```
-cipher-ai-rap-battle/
-├── frontend/                    # Next.js React app
-│   ├── pages/
-│   │   ├── _app.tsx            # App wrapper
-│   │   ├── index.tsx           # Homepage
-│   │   ├── battle/
-│   │   │   └── [id].tsx        # Battle arena page
-│   │   ├── leaderboard.tsx     # Global rankings
-│   │   └── profile/
-│   │       └── [username].tsx  # User profiles
-│   ├── components/
-│   │   ├── BattleArena.tsx     # Main battle interface
-│   │   ├── VerseInput.tsx      # Text input for user bars
-│   │   ├── AIResponse.tsx      # Display AI bars
-│   │   ├── HypeMeter.tsx       # Live voting display
-│   │   ├── Timer.tsx           # 30-second timer
-│   │   └── Navbar.tsx          # Navigation
-│   ├── hooks/
-│   │   ├── useWebSocket.ts     # WebSocket connection
-│   │   ├── useBattle.ts        # Battle state management
-│   │   └── useAuth.ts          # Authentication
-│   ├── styles/
-│   │   └── globals.css         # Tailwind CSS
-│   └── package.json
-│
-├── backend/                     # Node.js Express server
-│   ├── server.js               # Main entry point
-│   ├── routes/
-│   │   ├── battles.js          # Battle endpoints
-│   │   ├── leaderboard.js      # Rankings endpoints
-│   │   └── users.js            # User endpoints
-│   ├── services/
-│   │   ├── battleService.js    # Battle logic
-│   │   ├── aiService.js        # OpenAI integration
-│   │   ├── socketService.js    # WebSocket handlers
-│   │   └── rapPromptBuilder.js # Rap prompt generation
-│   ├── models/
-│   │   ├── Battle.js           # Battle data model
-│   │   ├── User.js             # User data model
-│   │   └── Verse.js            # Verse model
-│   ├── middleware/
-│   │   ├── auth.js             # JWT authentication
-│   │   └── errorHandler.js     # Error handling
-│   ├── config/
-│   │   └── database.js         # DB connection
-│   ├── utils/
-│   │   ├── scoring.js          # Battle scoring logic
-│   │   └── validators.js       # Input validation
-│   └── package.json
-│
-└── README.md
+**Current Tech:** Nuxt 3 (Vue 3) + TypeScript on Vercel, with Firebase and Supabase backends.
+
+---
+
+## Architecture Overview
 
 ```
+┌─────────────────────────────────────────┐
+│        Nuxt 3 SSR Frontend (Vue 3)      │
+│   Vercel Deployment | Auto-Deploy       │
+└─────────────────────────────────────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+    ┌───▼────┐   ┌───▼────┐   ┌───▼────┐
+    │Firebase │   │Supabase│   │Gemini  │
+    │  Auth   │   │PostgreSQL   │API    │
+    │ Realtime│   │(Optional)   │       │
+    └────────┘    └────────┘    └───────┘
+```
 
-## Tech Stack
+### Frontend Architecture (Nuxt 3)
 
-### Frontend
-- **Framework**: Next.js 14 (React)
-- - **Styling**: Tailwind CSS
-  - - **State Management**: React Context + Hooks
-    - - **Real-time Communication**: Socket.io Client
-      - - **API Client**: Axios
-        - - **Authentication**: JWT Tokens
-         
-          - ### Backend
-          - - **Runtime**: Node.js (v18+)
-            - - **Framework**: Express.js
-              - - **Real-time**: Socket.io
-                - - **Database**: Supabase PostgreSQL
-                  - - **AI**: OpenAI GPT-4
-                    - - **Authentication**: JWT (jsonwebtoken)
-                      - - **Validation**: Joi
-                       
-                        - ### DevOps & Infrastructure
-                        - - **Frontend Deployment**: Vercel
-                          - - **Backend Deployment**: Railway or Render
-                            - - **Database**: Supabase
-                              - - **Real-time DB**: Redis (for leaderboard cache)
-                                - - **Monitoring**: Sentry
-                                 
-                                  - ## Core Features
-                                 
-                                  - ### 1. Battle Arena
-                                  - - Real-time 1v1 battles against AI
-                                    - - 30-second timer per verse
-                                      - - 4-bar limit per turn
-                                        - - Audio and text input support
-                                          - - Live voting ("hype meter")
-                                           
-                                            - ### 2. AI Opponent
-                                            - - Uses OpenAI GPT-4 for rap generation
-                                              - - Learns user's style and weaknesses
+```
+nuxt.config.ts (Framework Configuration)
+     │
+     ├─ app.vue (Root Component)
+     │
+     ├─ pages/ (Route-Based Components)
+     │  ├─ index.vue (Homepage)
+     │  ├─ research.vue (Musaix Research)
+     │  ├─ alic3x.vue (AI Assistant)
+     │  ├─ liquidui.vue (UI Framework)
+     │  ├─ about.vue
+     │  └─ tools/
+     │     ├─ index.vue (Tools Hub)
+     │     ├─ battle.vue (AI Battle Arena)
+     │     ├─ lyrical.vue (Lyrical Lab)
+     │     └─ spectral.vue (Spectral Processor)
+     │
+     ├─ components/ (Reusable Components)
+     │  ├─ ui/ (16 shadcn-style Vue 3 Components)
+     │  │  ├─ Button.vue (Base Button)
+     │  │  ├─ Card.vue, CardContent.vue, CardHeader.vue
+     │  │  ├─ CardFooter.vue, CardTitle.vue, CardDescription.vue
+     │  │  ├─ Input.vue (Form Input)
+     │  │  ├─ Textarea.vue (Text Area)
+     │  │  ├─ InputGroup.vue (Input Wrapper)
+     │  │  ├─ Label.vue (Form Label)
+     │  │  ├─ Alert.vue, AlertTitle.vue, AlertDescription.vue
+     │  │  ├─ Switch.vue (Toggle)
+     │  │  ├─ Badge.vue (Status Badge)
+     │  │  └─ index.ts (Barrel Exports)
+     │  │
+     │  ├─ NavBar.vue (Navigation Header)
+     │  ├─ GlassCard.vue (Design System Component)
+     │  ├─ HoloBadge.vue (Holographic Badge)
+     │  ├─ ToolCard.vue (Tool Showcase)
+     │  └─ AppFooter.vue (Footer)
+     │
+     ├─ layouts/
+     │  └─ default.vue (App Shell with Animations)
+     │
+     ├─ assets/
+     │  └─ css/main.css (Global Styles)
+     │
+     └─ public/ (Static Assets)
+```
+
+---
+
+## Tech Stack Details
+
+### Framework Layer
+
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Nuxt | 3.21.2 | Meta-framework for Vue 3 SSR |
+| Vue | 3.5.32 | UI framework |
+| TypeScript | Latest | Type safety |
+| Vite | 7.3.2 | Module bundler |
+| Nitro | 2.13.3 | Server runtime |
+
+### Styling & Design
+
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Tailwind CSS | 3.4.1 | Utility-first CSS framework |
+| PostCSS | 8.4.35 | CSS processing |
+| Autoprefixer | 10.4.17 | Vendor prefixes |
+| Google Fonts | Via @nuxtjs/google-fonts | Typography |
+
+**Custom Design Tokens:**
+```javascript
+// tailwind.config.js
+colors: {
+  mx: {
+    bg: '#08080E',
+    cyan: '#00EAFF',
+    purple: '#8B00FF',
+    magenta: '#FF007A',
+    gold: '#FFD600',
+    green: '#00FF8C',
+    text: '#E8E8E8',
+    muted: '#646464',
+    surface: '#1A1A1F',
+    border: '#2D2D35'
+  }
+}
+
+backgroundImage: {
+  'holo-gradient': 'linear-gradient(135deg, ...)',
+  'mesh-dark': 'radial-gradient(...)',
+  'card-glass': 'linear-gradient(...)'
+}
+
+boxShadow: {
+  'glow-cyan': '0 0 20px rgba(0, 234, 255, 0.5)',
+  'glow-purple': '0 0 20px rgba(139, 0, 255, 0.5)',
+  // ... more glow variants
+}
+
+animation: {
+  'float': 'float 6s ease-in-out infinite',
+  'glow-cycle': 'glowCycle 4s ease-in-out infinite',
+  'gradient-x': 'gradientX 8s ease-in-out infinite',
+  'scan': 'scan 3s linear infinite',
+  'fade-up': 'fadeUp 0.6s ease-out',
+  'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+}
+```
+
+### UI Component Library
+
+**16 Custom Vue 3 Components (shadcn-style)**
+
+**Atomic Components:**
+- `Button.vue` - Interactive button with variants (default, primary, ghost, outline)
+- `Input.vue` - Form input with focus states
+- `Textarea.vue` - Multi-line text input
+- `Label.vue` - Form label with accessibility
+- `Badge.vue` - Status/category badge
+
+**Composed Components:**
+- `Card.vue` - Base card container
+- `CardContent.vue` - Card content area
+- `CardHeader.vue` - Card header section
+- `CardFooter.vue` - Card footer section
+- `CardTitle.vue` - Card title
+- `CardDescription.vue` - Card description text
+
+**Complex Components:**
+- `Alert.vue` - Alert container
+- `AlertTitle.vue` - Alert title
+- `AlertDescription.vue` - Alert message
+- `Switch.vue` - Toggle switch with animation
+- `InputGroup.vue` - Grouped input wrapper
+
+**Implementation Pattern:**
+```vue
+<!-- All components use className prop pattern -->
+<template>
+  <button :class="baseClasses + (variant[props.variant] || '')">
+    <slot />
+  </button>
+</template>
+
+<script setup lang="ts">
+interface Props {
+  variant?: 'default' | 'primary' | 'ghost' | 'outline'
+  className?: string
+}
+
+defineProps<Props>()
+</script>
+```
+
+**Barrel Export (index.ts):**
+```javascript
+export { default as Button } from './Button.vue'
+export { default as Card } from './Card.vue'
+// ... exports for all 16 components
+```
+
+### Core Components
+
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| `NavBar.vue` | Navigation header | Scroll detection, mobile toggle, TypeScript types |
+| `GlassCard.vue` | Design system card | Optional glow effects, accent border, hover elevation |
+| `HoloBadge.vue` | Holographic badge | Color variants, modern minimal styling |
+| `ToolCard.vue` | Tool showcase | Icon display, arrow animation, interactive |
+| `AppFooter.vue` | App footer | Links, branding, responsive layout |
+
+### Layout & Pages
+
+**Layout (default.vue):**
+- Fixed mesh background with 3 animated gradient orbs
+- Grid overlay (30% opacity)
+- Scan line effect (12s vertical movement)
+- Responsive slot for page content
+
+**Pages (Optimized for 2026 Minimal UX):**
+
+| Page | Features | Responsive |
+|------|----------|-----------|
+| `index.vue` | Hero, product cards, tech stack, CTAs | text-xs md:text-sm lg:text-base |
+| `research.vue` | Analytics dashboard demo, features, use cases | Responsive grid, adaptive padding |
+| `alic3x.vue` | Chat interface, capabilities grid, tech specs | Mobile-first layout |
+| `tools/index.vue` | Quick launch, feature cards, early access | Responsive grid layout |
+| `about.vue` | Team, mission, values | Optimized typography |
+
+**Typography System:**
+```tailwind
+/* Responsive text scaling */
+text-xs      /* 12px - Mobile default */
+md:text-sm   /* 14px - Tablet */
+lg:text-base /* 16px - Desktop */
+
+h1: text-2xl md:text-3xl lg:text-4xl
+h2: text-xl md:text-2xl lg:text-3xl
+p:  text-sm md:text-base lg:text-lg
+```
+
+**Spacing System:**
+```tailwind
+/* Responsive padding/gaps */
+px-6 py-8      /* Mobile */
+md:px-8 md:py-12 /* Tablet */
+lg:px-12 lg:py-16 /* Desktop */
+
+gap-4 md:gap-6 lg:gap-8 /* Grid gaps */
+```
+
+---
+
+## Modules & Dependencies
+
+### Nuxt Modules
+- `@nuxtjs/tailwindcss` (6.11.4) - Tailwind integration
+- `@nuxtjs/google-fonts` (3.2.0) - Font loading
+- `@vueuse/nuxt` (10.9.0) - Composables library
+- `@nuxt/devtools` (1.0.0) - Dev environment tools
+
+### Runtime Dependencies
+- `@vueuse/core` (10.9.0) - Composition utilities
+- Build: Vite 7.3.2, Rollup 4.x
+- PostCSS ecosystem (7.4.35+)
+
+### Development Setup
+- Node.js 20+ required
+- pnpm 10.28.0 (locked)
+- ESLint for code quality
+- TypeScript for type safety
+
+---
+
+## Data Layer
+
+### Authentication
+- **Provider:** Firebase Authentication
+- **Config:** Environment variables (NUXT_PUBLIC_FIREBASE_*)
+- **Type:** Email/password + optional social login
+
+### Database
+- **Primary:** Firebase Realtime Database
+- **Optional:** Supabase PostgreSQL
+- **Config:** Environment variables (NUXT_PUBLIC_SUPABASE_*)
+
+### AI Services
+- **Provider:** Google Gemini API
+- **Purpose:** Alic3X PRO assistant, lyrical analysis
+- **Config:** NUXT_PUBLIC_GEMINI_API_KEY
+
+---
+
+## Deployment Architecture
+
+### Vercel Setup
+
+```
+GitHub Repo (sterl27/cipher-ai-rap-battle)
+    │
+    ├─ Branch: n (main deployment branch)
+    │
+    └─ Vercel Project
+       ├─ Build Command: nuxt build
+       ├─ Output Dir: .output/public
+       ├─ Node: 20.x (recommended)
+       ├─ Functions: Nitro server routes
+       └─ Auto-Deploy: Enabled (git push → deploy)
+```
+
+**Environment Variables (Vercel):**
+- NUXT_PUBLIC_GEMINI_API_KEY
+- NUXT_PUBLIC_FIREBASE_* (5 variables)
+- NUXT_PUBLIC_SUPABASE_* (2 variables, optional)
+
+**Build Metrics (Latest):**
+- Client build: 4089ms (196 modules)
+- Server build: 6072ms (238 modules)
+- Nitro generation: Complete
+- Bundle size: ~5.21MB (1.04MB gzip)
+
+**Production URL:** https://cipher-ai-rap-battle.vercel.app
+
+---
+
+## Development Workflow
+
+### Local Development
+
+```bash
+# Install
+cd frontend
+pnpm install
+
+# Environment
+cp .env.example .env.local
+# Add API keys
+
+# Development (port 3001)
+pnpm dev
+
+# Type checking
+pnpm lint
+
+# Production build
+pnpm build
+```
+
+### Git Integration
+
+```bash
+# Branch: n
+# Push to trigger Vercel auto-deploy
+git add .
+git commit -m "feat: description"
+git push origin n
+# → Vercel builds and deploys to production
+```
+
+### Performance Considerations
+
+1. **Bundle Optimization:** Lazy-load pages via Nuxt auto-routes
+2. **CSS:** Tailwind purges unused classes in build
+3. **Images:** Use responsive images with `nuxt/image` (if needed)
+4. **API:** Firebase SDKs loaded via environment variables only when needed
+
+---
+
+## Design System Architecture
+
+### Color System (mx-* namespace)
+```
+Primary Background: #08080E (mx-bg)
+Accent Colors:
+  - Cyan:    #00EAFF (mx-cyan) - Primary accent
+  - Purple:  #8B00FF (mx-purple) - Secondary accent
+  - Magenta: #FF007A (mx-magenta) - Danger/Alert
+  - Gold:    #FFD600 (mx-gold) - Success/Highlight
+  - Green:   #00FF8C (mx-green) - Natural/Growth
+
+Text & Neutral:
+  - Text:    #E8E8E8 (mx-text)
+  - Muted:   #646464 (mx-muted)
+  - Surface: #1A1A1F (mx-surface)
+  - Border:  #2D2D35 (mx-border)
+```
+
+### Animation System
+
+```javascript
+// Keyframe Animations (tailwind.config.js)
+
+float: translateY(-30px) → 0 → -30px (6s ease-in-out)
+glowCycle: hsla cycling through accent colors (4s)
+gradientX: Horizontal gradient shift (8s)
+scan: Vertical line movement (3s linear)
+fadeUp: Opacity 0 → 1 + translateY -20px → 0 (0.6s)
+```
+
+### Typography Hierarchy
+
+```
+Display:  Orbitron (400-900) - Headings, hero text
+Body:     Space Grotesk (300-700) - Main content
+Mono:     Inter (300-500) - Code, technical text
+```
+
+---
+
+## API Integration Points
+
+### Firebase SDK
+```typescript
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getDatabase } from 'firebase/database'
+
+const firebaseConfig = {
+  apiKey: useRuntimeConfig().public.firebaseApiKey,
+  authDomain: useRuntimeConfig().public.firebaseAuthDomain,
+  // ... other config
+}
+```
+
+### Gemini API (Runtime)
+```typescript
+const config = useRuntimeConfig()
+const apiKey = config.public.geminiApiKey
+
+// Used in Alic3X PRO and lyrical tools
+// API calls via fetch or axios in Vue components
+```
+
+### Supabase (Optional)
+```typescript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  useRuntimeConfig().public.supabaseUrl,
+  useRuntimeConfig().public.supabaseAnonKey
+)
+```
+
+---
+
+## File Size Analysis
+
+| Category | Size | Gzipped |
+|----------|------|---------|
+| CSS Bundle | ~15KB | 3.5KB |
+| JS Runtime | ~250KB | ~80KB |
+| Vendor JS | ~1.2MB | ~400KB |
+| Total | 5.21MB | 1.04MB |
+
+---
+
+## Security Considerations
+
+1. **API Keys:** Only public keys in environment variables (prefixed `NUXT_PUBLIC_`)
+2. **Firebase:** Use security rules for database access
+3. **Supabase:** Row-level security enabled (if used)
+4. **CORS:** Vercel automatically handles cross-origin requests
+5. **CSP:** Tailwind/Vite bundle includes no inline scripts
+
+---
+
+## Future Architecture Considerations
+
+- **Edge Functions:** Supabase Edge Functions for serverless logic
+- **Database:** Migrate from Firebase to Supabase for more control
+- **Real-time:** Socket.io integration for live battles (if needed)
+- **Media:** Cloudinary/Vercel Image Optimization for media handling
+- **Analytics:** Sentry or PostHog for performance monitoring
+
+---
+
+## Version History
+
+- **Current:** Nuxt 3.21.2 + Vue 3.5.32 + Tailwind 3.4.1 (January 2026)
+- **Previous:** Next.js 14 + React + OpenAI (2025-2026)
+- **Original:** Cipher.AI MVP with Express backend (2024-2025)
                                                 - - Personalizes roasts based on user history
                                                   - - Maintains rap battle context
                                                     - - Generates competitive punchlines in real-time
