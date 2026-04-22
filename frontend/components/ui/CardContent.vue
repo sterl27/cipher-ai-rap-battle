@@ -1,10 +1,12 @@
 <template>
-  <div :class="['px-6 py-4', className]">
+  <div :class="cn('p-6 pt-0', className)">
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
+import { cn } from '~/lib/utils'
+
 interface Props {
   className?: string
 }

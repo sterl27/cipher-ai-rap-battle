@@ -8,13 +8,21 @@ yarn.lock
 # Environment variables
 .env
 .env.local
+.env.production
 .env.*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.production
 
 # Build output
 .next/
 out/
 build/
 dist/
+.nuxt/
+.output/
+frontend/.nuxt/
+frontend/.output/
 
 # IDE
 .vscode/

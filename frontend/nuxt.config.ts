@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: true,
+  compatibilityDate: '2026-04-15',
   
   modules: [
     '@nuxtjs/tailwindcss',
@@ -55,9 +56,16 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     geminiApiKey: process.env.GEMINI_API_KEY || '',
+    supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    googleSearchApiKey: process.env.GOOGLE_SEARCH_API_KEY || '',
+    googleSearchCx: process.env.GOOGLE_SEARCH_CX || '',
+    healthCheckSecret: process.env.HEALTH_CHECK_SECRET || '',
     public: {
       appName: 'Musaix Pro',
       appVersion: '1.0.0',
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '',
+      supabaseAnonKey:
+        process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '',
     },
   },
 

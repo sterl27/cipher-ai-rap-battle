@@ -1,262 +1,387 @@
 <template>
-  <div class="px-4 md:px-6 py-12 md:py-16 max-w-7xl mx-auto">
-    <!-- Hero -->
-    <div class="text-center mb-12 md:mb-16">
-      <HoloBadge color="purple" dot class="mb-3">Powered by Gemini</HoloBadge>
-      <h1 class="font-display font-black text-3xl md:text-4xl lg:text-5xl text-white mb-4">
-        Meet <span class="holo-text">Alic3X PRO</span>
-      </h1>
-      <p class="text-mx-muted text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-        Your AI creative collaborator for every stage of the music production workflow.
-        Alic3X understands your vision, learns your style, and helps you create at the speed of thought.
-      </p>
+  <div class="px-4 py-8 md:px-6 md:py-10 max-w-7xl mx-auto">
+    <div class="mb-8 md:mb-10">
+      <HoloBadge color="purple" dot class="mb-3">Supabase Auth + Gemini</HoloBadge>
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 class="font-display font-black text-3xl md:text-4xl lg:text-5xl text-white mb-3">
+            Alic3X PRO <span class="holo-text">Dashboard</span>
+          </h1>
+          <p class="text-sm md:text-base text-mx-muted max-w-2xl leading-relaxed">
+            A dark, modular AI workspace with voice chat, task management, web search,
+            analytics, and a local knowledge base — now gated behind Supabase authentication.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:min-w-[420px]">
+          <div class="hero-stat">
+            <p class="hero-stat-label">Voice</p>
+            <p class="hero-stat-value text-mx-cyan">Web Speech</p>
+          </div>
+          <div class="hero-stat">
+            <p class="hero-stat-label">Auth</p>
+            <p class="hero-stat-value text-mx-purple">Supabase</p>
+          </div>
+          <div class="hero-stat">
+            <p class="hero-stat-label">Search</p>
+            <p class="hero-stat-value text-mx-green">Google API</p>
+          </div>
+          <div class="hero-stat">
+            <p class="hero-stat-label">Mode</p>
+            <p class="hero-stat-value text-mx-gold">Realtime</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Chat Interface Demo -->
-    <GlassCard accent="purple" class="mb-16 p-0 overflow-hidden max-w-3xl mx-auto">
-      <!-- Chat header -->
-      <div class="px-6 py-4 border-b border-mx-border flex items-center gap-3">
-        <div class="alic3x-avatar">
-          <span class="font-display font-black text-sm holo-text">A3</span>
-        </div>
-        <div>
-          <p class="font-display font-bold text-sm text-white">Alic3X PRO</p>
-          <div class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-mx-green animate-pulse" />
-            <span class="text-xs text-mx-muted">Active · Gemini 2.0 Powered</span>
-          </div>
-        </div>
+    <GlassCard
+      v-if="!supabaseConfigured"
+      accent="magenta"
+      class="max-w-3xl mx-auto"
+    >
+      <p class="section-label mb-3">Configuration Needed</p>
+      <h2 class="font-display font-bold text-2xl text-white mb-3">
+        Add your <span class="holo-text">Supabase keys</span>
+      </h2>
+      <p class="text-mx-muted text-sm leading-relaxed mb-5">
+        This page is wired for Supabase email auth, but the browser client is currently disabled
+        because `NUXT_PUBLIC_SUPABASE_URL` and/or `NUXT_PUBLIC_SUPABASE_ANON_KEY` are missing.
+      </p>
+
+      <div class="rounded-2xl border border-mx-border bg-mx-surface/60 p-4 font-mono text-xs text-mx-muted mb-5 overflow-x-auto">
+        <p>NUXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co</p>
+        <p>NUXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxx</p>
+        <p>SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxx</p>
       </div>
 
-      <!-- Messages -->
-      <div class="p-6 space-y-4">
-        <div v-for="msg in chatMessages" :key="msg.id">
-          <!-- User message -->
-          <div v-if="msg.role === 'user'" class="flex justify-end">
-            <div class="user-bubble">{{ msg.content }}</div>
-          </div>
-          <!-- AI message -->
-          <div v-else class="flex gap-3">
-            <div class="alic3x-avatar-sm flex-shrink-0">
-              <span class="font-display font-black text-xs holo-text">A3</span>
-            </div>
-            <div class="ai-bubble">
-              <p class="text-sm leading-relaxed text-mx-text" v-html="msg.content" />
-              <div v-if="msg.tags" class="flex flex-wrap gap-1.5 mt-3">
-                <span v-for="tag in msg.tags" :key="tag" class="tool-badge border-mx-purple/30 text-mx-purple bg-mx-purple/10">
-                  {{ tag }}
-                </span>
-              </div>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-mx-muted">
+        <div class="rounded-xl border border-mx-border p-4 bg-white/5">
+          <p class="font-display font-bold text-white mb-2">For local auth redirects</p>
+          <p>Add this to Supabase Auth → URL Configuration:</p>
+          <p class="text-mx-cyan mt-2 break-all">http://localhost:3002/**</p>
         </div>
-
-        <!-- Typing indicator -->
-        <div class="flex gap-3">
-          <div class="alic3x-avatar-sm flex-shrink-0">
-            <span class="font-display font-black text-xs holo-text">A3</span>
-          </div>
-          <div class="ai-bubble flex items-center gap-1 py-4 px-4">
-            <span v-for="i in 3" :key="i" class="typing-dot" :style="{ animationDelay: (i * 0.2) + 's' }" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Input -->
-      <div class="px-6 py-4 border-t border-mx-border">
-        <div class="flex gap-3">
-          <input
-            class="chat-input flex-1"
-            placeholder="Ask Alic3X anything about your music..."
-            disabled
-          />
-          <button class="btn-primary px-4 py-2 text-xs" disabled>Send</button>
+        <div class="rounded-xl border border-mx-border p-4 bg-white/5">
+          <p class="font-display font-bold text-white mb-2">For production</p>
+          <p>Use your Vercel URL as Site URL and allow:</p>
+          <p class="text-mx-cyan mt-2 break-all">https://cipher-ai-rap-battle.vercel.app/**</p>
         </div>
       </div>
     </GlassCard>
 
-    <!-- Capabilities Grid -->
-    <div class="mb-12 md:mb-16">
-      <h2 class="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-white text-center mb-8 md:mb-10">
-        What Alic3X <span class="holo-text">Can Do</span>
+    <GlassCard v-else-if="loading" accent="purple" class="max-w-xl mx-auto text-center py-14">
+      <div class="inline-flex items-center gap-3 text-mx-purple">
+        <span class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin inline-block" />
+        <span class="font-display font-bold text-lg">Checking session…</span>
+      </div>
+    </GlassCard>
+
+    <GlassCard v-else-if="!user" accent="purple" class="max-w-xl mx-auto">
+      <p class="section-label mb-3">Secure Access</p>
+      <h2 class="font-display font-bold text-2xl md:text-3xl text-white mb-3">
+        Sign in to <span class="holo-text">Alic3X PRO</span>
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <GlassCard
-          v-for="cap in capabilities"
-          :key="cap.title"
-          :accent="cap.accent"
-          hoverable
-        >
-          <div class="text-4xl mb-4">{{ cap.emoji }}</div>
-          <h3 class="font-display font-bold text-lg text-white mb-2">{{ cap.title }}</h3>
-          <p class="text-mx-muted text-sm leading-relaxed mb-4">{{ cap.desc }}</p>
-          <ul class="space-y-1">
-            <li v-for="point in cap.points" :key="point" class="flex items-center gap-2 text-xs text-mx-muted">
-              <span class="w-1 h-1 rounded-full bg-mx-purple flex-shrink-0" />
-              {{ point }}
-            </li>
-          </ul>
+      <p class="text-sm text-mx-muted leading-relaxed mb-6">
+        Enter your email and we’ll send a magic link using Supabase Auth.
+        If your Supabase email template is configured for OTP instead, you can use the code below too.
+      </p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="auth-label">Email Address</label>
+          <input
+            v-model="authEmail"
+            type="email"
+            class="auth-input w-full"
+            autocomplete="email"
+            placeholder="you@studio.com"
+            @keydown.enter.prevent="sendMagicLink"
+          />
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            class="btn-primary"
+            :disabled="authBusy || !authEmail.trim()"
+            @click="sendMagicLink"
+          >
+            <span v-if="!authBusy">Send Sign-In Link</span>
+            <span v-else class="inline-flex items-center gap-2">
+              <span class="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin inline-block" />
+              Sending...
+            </span>
+          </button>
+        </div>
+
+        <div class="rounded-xl border border-mx-border bg-white/5 p-4">
+          <p class="auth-label mb-2">Optional OTP Verification</p>
+          <div class="flex flex-col md:flex-row gap-3">
+            <input
+              v-model="otpCode"
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              class="auth-input flex-1"
+              placeholder="123456"
+              @keydown.enter.prevent="verifyEmailOtp"
+            />
+            <button
+              class="btn-holo whitespace-nowrap"
+              :disabled="authBusy || !authEmail.trim() || otpCode.trim().length < 6"
+              @click="verifyEmailOtp"
+            >
+              Verify OTP
+            </button>
+          </div>
+          <p class="text-xs text-mx-muted mt-2">
+            Use this only if your Supabase email template sends a 6-digit code instead of a magic link.
+          </p>
+        </div>
+
+        <p v-if="authNotice" class="text-sm text-mx-green">{{ authNotice }}</p>
+        <p v-if="authError" class="text-sm text-mx-magenta">{{ authError }}</p>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-mx-border text-xs text-mx-muted space-y-2">
+        <p>
+          <span class="text-white font-medium">Redirect URL:</span>
+          <span class="break-all ml-1">{{ authRedirectUrl }}</span>
+        </p>
+        <p>
+          Make sure this URL is allowed in Supabase Auth settings, or the login email will bounce like a bad snare.
+        </p>
+      </div>
+    </GlassCard>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-6 min-h-[780px]">
+      <Sidebar v-model="activeView" />
+
+      <div class="space-y-4">
+        <div class="md:hidden flex gap-2 overflow-x-auto pb-2">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            :class="[
+              'px-3 py-2 rounded-xl border text-xs whitespace-nowrap transition-all',
+              activeView === tab.id
+                ? 'border-mx-purple/40 bg-mx-purple/20 text-mx-purple'
+                : 'border-mx-border text-mx-muted',
+            ]"
+            @click="activeView = tab.id"
+          >
+            {{ tab.icon }} {{ tab.label }}
+          </button>
+        </div>
+
+        <GlassCard accent="purple" class="p-0 overflow-hidden min-h-[720px]">
+          <div class="flex flex-col gap-4 border-b border-mx-border px-5 py-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p class="text-xs text-mx-muted uppercase tracking-[0.2em] font-mono">Authenticated session</p>
+              <h2 class="font-display font-bold text-xl text-white mt-1">Welcome back, {{ user.email }}</h2>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="px-3 py-1 text-xs rounded-full border border-mx-green/30 bg-mx-green/10 text-mx-green">
+                Session Active
+              </span>
+              <button class="btn-holo text-xs" @click="handleSignOut">Sign Out</button>
+            </div>
+          </div>
+
+          <component :is="activeComponent" @goto-settings="activeView = 'settings'" />
         </GlassCard>
       </div>
-    </div>
-
-    <!-- Tech behind Alic3X -->
-    <GlassCard accent="purple" class="mb-16">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <p class="section-label mb-3">Under the Hood</p>
-          <h2 class="font-display font-bold text-3xl text-white mb-4">
-            Built on <span class="holo-text">Gemini 2.0</span>
-          </h2>
-          <p class="text-mx-muted leading-relaxed mb-6">
-            Alic3X PRO is powered by Google's Gemini 2.0 multimodal model, giving it the ability
-            to understand audio, text, and creative context simultaneously — delivering
-            responses that actually understand music production.
-          </p>
-          <div class="space-y-3">
-            <div v-for="spec in specs" :key="spec.label" class="spec-row">
-              <span class="text-mx-muted text-xs font-mono">{{ spec.label }}</span>
-              <span class="font-mono text-xs text-mx-cyan">{{ spec.value }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div v-for="s in techPoints" :key="s.title" class="tech-point">
-            <div class="text-2xl mb-2">{{ s.icon }}</div>
-            <h4 class="font-display font-bold text-xs text-white mb-1">{{ s.title }}</h4>
-            <p class="text-mx-muted text-xs">{{ s.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </GlassCard>
-
-    <!-- CTA -->
-    <div class="text-center">
-      <h2 class="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-white mb-3">
-        Ready to Create with <span class="holo-text">Alic3X?</span>
-      </h2>
-      <p class="text-mx-muted mb-8">Start your first creative session for free. No setup required.</p>
-      <NuxtLink to="/tools" class="btn-primary mr-4">Get Started Free</NuxtLink>
-      <NuxtLink to="/research" class="btn-holo">Explore Research</NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
+import Analytics from '~/components/alic3x/Analytics.vue'
+import ChatInterface from '~/components/alic3x/ChatInterface.vue'
+import KnowledgeBase from '~/components/alic3x/KnowledgeBase.vue'
+import Settings from '~/components/alic3x/Settings.vue'
+import Sidebar from '~/components/alic3x/Sidebar.vue'
+import TaskManager from '~/components/alic3x/TaskManager.vue'
+import WebSearch from '~/components/alic3x/WebSearch.vue'
+
 useSeoMeta({
-  title: 'Alic3X PRO — Your AI Creative Collaborator | Musaix Pro',
-  description: 'AI-powered creative assistant for music production, powered by Gemini 2.0.',
+  title: 'Alic3X PRO Dashboard — Supabase Auth + AI Workspace | Musaix Pro',
+  description: 'Authenticated AI workspace for music production with Supabase auth, voice chat, task management, analytics, and web search.',
 })
 
-const chatMessages = [
-  {
-    id: 1, role: 'user',
-    content: 'I\'m working on a lo-fi hip-hop track in Dm. Can you suggest a chord progression and some lyric themes?'
-  },
-  {
-    id: 2, role: 'ai',
-    content: 'Love that choice — Dm is perfect for lo-fi. Here\'s what I\'d suggest:<br/><br/><strong style="color:#00EAFF">Chord Progression:</strong> Dm7 → Gmaj7 → Cmaj7 → Am7<br/>This gives you that classic melancholic warmth. You can loop bars 1-4 or resolve to Fmaj7 for a bridge.<br/><br/><strong style="color:#8B00FF">Lyric Themes:</strong> Late-night nostalgia, quiet introspection, city lights from a window, or the space between conversations.',
-    tags: ['Chord Theory', 'Lyric Concepts', 'Lo-Fi', 'Dm Key']
-  },
-  {
-    id: 3, role: 'user',
-    content: 'Perfect. What BPM range works best for this vibe?'
-  },
-  {
-    id: 4, role: 'ai',
-    content: 'For authentic lo-fi hip-hop in that emotional range, aim for <strong style="color:#FFD600">75–90 BPM</strong>. I\'d place you specifically around <strong style="color:#FFD600">82–85 BPM</strong> — slow enough to feel contemplative, but with enough pulse to keep listeners engaged.',
-    tags: ['BPM', 'Production', 'Lo-Fi']
+type ViewId = 'chat' | 'tasks' | 'search' | 'analytics' | 'kb' | 'settings'
+
+const {
+  supabase,
+  user,
+  loading,
+  init,
+  onAuthStateChange,
+  signInWithOtp,
+  verifyOtp,
+  signOut,
+} = useSupabaseAuth()
+
+const activeView = ref<ViewId>('chat')
+const authEmail = ref('')
+const otpCode = ref('')
+const authBusy = ref(false)
+const authNotice = ref('')
+const authError = ref('')
+
+const tabs = [
+  { id: 'chat' as ViewId, icon: '💬', label: 'Chat' },
+  { id: 'tasks' as ViewId, icon: '✅', label: 'Tasks' },
+  { id: 'search' as ViewId, icon: '🔍', label: 'Search' },
+  { id: 'analytics' as ViewId, icon: '📊', label: 'Analytics' },
+  { id: 'kb' as ViewId, icon: '🗄️', label: 'Knowledge' },
+  { id: 'settings' as ViewId, icon: '⚙️', label: 'Settings' },
+]
+
+const supabaseConfigured = computed(() => Boolean(supabase))
+
+const activeComponent = computed(() => {
+  switch (activeView.value) {
+    case 'tasks':
+      return TaskManager
+    case 'search':
+      return WebSearch
+    case 'analytics':
+      return Analytics
+    case 'kb':
+      return KnowledgeBase
+    case 'settings':
+      return Settings
+    case 'chat':
+    default:
+      return ChatInterface
   }
-]
+})
 
-const capabilities = [
-  {
-    emoji: '✍️', title: 'Lyric Co-Writing', accent: 'purple' as const,
-    desc: 'Collaborate on lyrics in real-time. Alic3X matches your style, tone, and theme.',
-    points: ['Rhyme scheme suggestions', 'Flow analysis', 'Metaphor generation', 'Verse / hook / bridge structure'],
-  },
-  {
-    emoji: '🎸', title: 'Chord & Theory', accent: 'cyan' as const,
-    desc: 'Get instant music theory guidance — chord progressions, scale modes, and harmonic tension.',
-    points: ['Progression suggestions by mood', 'Genre-specific theory', 'Modulation paths', 'Roman numeral analysis'],
-  },
-  {
-    emoji: '🎚️', title: 'Mix Consulting', accent: 'magenta' as const,
-    desc: 'Upload a rough mix and get professional feedback on frequency balance, dynamics, and stereo field.',
-    points: ['Frequency masking detection', 'Compression advice', 'Reference track matching', 'Final polish checklist'],
-  },
-  {
-    emoji: '🧠', title: 'Creative Direction', accent: 'gold' as const,
-    desc: 'Stuck on an idea? Alic3X generates creative prompts, concept art descriptions, and album narratives.',
-    points: ['Visual aesthetic concepts', 'Album arc storytelling', 'Single rollout strategy', 'Brand voice alignment'],
-  },
-  {
-    emoji: '📊', title: 'Production Analysis', accent: 'cyan' as const,
-    desc: 'Drop a track link and get deep analysis — BPM, key, instrumentation, and production techniques used.',
-    points: ['Automatic BPM/key detection', 'Instrument identification', 'Genre classification', 'Production signature'],
-  },
-  {
-    emoji: '🚀', title: 'Release Strategy', accent: 'purple' as const,
-    desc: 'Data-backed release planning — when to drop, how to sequence, and what platforms to prioritize.',
-    points: ['Optimal release windows', 'Playlist pitch strategy', 'Pre-save campaign guidance', 'Momentum planning'],
-  },
-]
+const authRedirectUrl = computed(() => {
+  if (import.meta.client) {
+    return `${window.location.origin}/alic3x`
+  }
 
-const specs = [
-  { label: 'Model',        value: 'Gemini 2.0 Flash' },
-  { label: 'Context',      value: '1M token window' },
-  { label: 'Modalities',   value: 'Text + Audio + Vision' },
-  { label: 'Latency',      value: '< 800ms response' },
-  { label: 'Memory',       value: 'Persistent session context' },
-]
+  return 'http://localhost:3000/alic3x'
+})
 
-const techPoints = [
-  { icon: '⚡', title: 'Streaming Responses', desc: 'Real-time token streaming for instant feedback.' },
-  { icon: '🔒', title: 'Private by Default',   desc: 'Your creative work is never used for training.' },
-  { icon: '🌐', title: 'Firebase Sync',        desc: 'Sessions sync across all your devices.' },
-  { icon: '🎵', title: 'Audio Understanding',  desc: 'Native audio analysis — no conversion needed.' },
-]
+let unsubscribeAuth: (() => void) | null = null
+
+function setAuthMessage(message: string, type: 'notice' | 'error') {
+  if (type === 'notice') {
+    authNotice.value = message
+    authError.value = ''
+    return
+  }
+
+  authError.value = message
+  authNotice.value = ''
+}
+
+async function sendMagicLink() {
+  const email = authEmail.value.trim()
+  if (!email || authBusy.value) return
+
+  authBusy.value = true
+  setAuthMessage('', 'notice')
+
+  try {
+    const { error } = await signInWithOtp(email, {
+      emailRedirectTo: authRedirectUrl.value,
+      shouldCreateUser: true,
+    })
+
+    if (error) throw error
+
+    setAuthMessage(`Magic link sent to ${email}. Check your inbox — and maybe the spam folder’s underground mixtape.`, 'notice')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unable to send sign-in link.'
+    setAuthMessage(message, 'error')
+  } finally {
+    authBusy.value = false
+  }
+}
+
+async function verifyEmailOtp() {
+  const email = authEmail.value.trim()
+  const token = otpCode.value.trim()
+  if (!email || token.length < 6 || authBusy.value) return
+
+  authBusy.value = true
+  setAuthMessage('', 'notice')
+
+  try {
+    const { error } = await verifyOtp(email, token)
+    if (error) throw error
+
+    otpCode.value = ''
+    setAuthMessage('OTP verified. You are now signed in.', 'notice')
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unable to verify OTP.'
+    setAuthMessage(message, 'error')
+  } finally {
+    authBusy.value = false
+  }
+}
+
+async function handleSignOut() {
+  await signOut()
+  setAuthMessage('Signed out successfully.', 'notice')
+  activeView.value = 'chat'
+}
+
+function handleAuthStateChange(_event: AuthChangeEvent, nextSession: Session | null) {
+  if (nextSession?.user) {
+    setAuthMessage(`Signed in as ${nextSession.user.email ?? 'your account'}.`, 'notice')
+    return
+  }
+
+  if (!nextSession) {
+    activeView.value = 'chat'
+  }
+}
+
+function readAuthErrorFromUrl() {
+  if (!import.meta.client || !window.location.hash) return
+
+  const params = new URLSearchParams(window.location.hash.slice(1))
+  const description = params.get('error_description')
+
+  if (description) {
+    setAuthMessage(description, 'error')
+  }
+}
+
+onMounted(async () => {
+  await init()
+  unsubscribeAuth = onAuthStateChange(handleAuthStateChange)
+  readAuthErrorFromUrl()
+})
+
+onUnmounted(() => {
+  unsubscribeAuth?.()
+})
 </script>
 
 <style scoped>
-.alic3x-avatar {
-  @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-mx-purple/40;
-  background: linear-gradient(135deg, rgba(139,0,255,0.2), rgba(255,0,122,0.2));
+.hero-stat {
+  @apply rounded-2xl border border-mx-border bg-white/5 px-4 py-3;
 }
-.alic3x-avatar-sm {
-  @apply w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border border-mx-purple/40;
-  background: linear-gradient(135deg, rgba(139,0,255,0.2), rgba(255,0,122,0.2));
+
+.hero-stat-label {
+  @apply text-[10px] uppercase tracking-[0.2em] font-mono text-mx-muted mb-1;
 }
-.user-bubble {
-  @apply text-sm px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs;
-  background: linear-gradient(135deg, rgba(0,234,255,0.15), rgba(139,0,255,0.15));
-  border: 1px solid rgba(0,234,255,0.2);
-  color: #E8E8F0;
+
+.hero-stat-value {
+  @apply text-sm font-display font-bold;
 }
-.ai-bubble {
-  @apply px-4 py-3 rounded-2xl rounded-tl-sm max-w-lg flex-1;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+
+.auth-label {
+  @apply block text-xs text-mx-muted mb-1.5 font-mono uppercase tracking-[0.18em];
 }
-.typing-dot {
-  @apply w-1.5 h-1.5 rounded-full bg-mx-purple;
-  animation: typingBounce 1.2s ease-in-out infinite;
-}
-@keyframes typingBounce {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50%       { transform: translateY(-4px); opacity: 1; }
-}
-.chat-input {
-  @apply px-4 py-2.5 rounded-xl text-sm text-mx-muted bg-mx-surface border border-mx-border outline-none w-full;
-}
-.spec-row {
-  @apply flex items-center justify-between py-2 border-b border-mx-border/50;
-}
-.tech-point {
-  @apply relative overflow-hidden rounded-2xl border border-mx-border p-4 text-center;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+
+.auth-input {
+  @apply px-4 py-3 rounded-xl text-sm text-mx-text bg-mx-surface border border-mx-border
+    outline-none focus:border-mx-purple/40 transition-colors;
 }
 </style>

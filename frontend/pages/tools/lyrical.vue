@@ -85,7 +85,9 @@
               </button>
             </div>
           </div>
-          <div class="ai-verse-output" v-html="formattedOutput" />
+          <div class="ai-verse-output">
+            <p v-for="(line, idx) in outputLines" :key="idx" class="mb-2 leading-relaxed">{{ line }}</p>
+          </div>
         </GlassCard>
       </div>
 
@@ -201,45 +203,69 @@ const flowPatterns = [
   { name: 'Off-Beat',    bpm: '90 BPM', grid: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1] },
 ]
 
-const formattedOutput = computed(() =>
-  aiOutput.value
-    .split('\n')
-    .map(line => `<p class="mb-2 leading-relaxed">${line}</p>`)
-    .join('')
-)
+const outputLines = computed(() => aiOutput.value.split('\n'))
+
+let analyzeDebounce: ReturnType<typeof setTimeout> | null = null
 
 function analyzeInput() {
-  // Simulate live scoring adjustments
-  analysis.value = analysis.value.map(m => ({
-    ...m,
-    score: Math.min(100, Math.max(20, m.score + Math.floor(Math.random() * 6 - 3)))
-  }))
+  if (analyzeDebounce) clearTimeout(analyzeDebounce)
+  analyzeDebounce = setTimeout(async () => {
+    if (!userLyrics.value.trim() || userLyrics.value.trim().split(/\s+/).length < 5) return
+    try {
+      const res = await $fetch<{ type: string; scores: Record<string, number> }>('/api/ai/generate', {
+        method: 'POST',
+        body: { mode: 'Analyze', lyrics: userLyrics.value, genre: genre.value, rhymeScheme: rhymeScheme.value },
+      })
+      if (res.type === 'analysis' && res.scores) {
+        analysis.value = [
+          { label: 'Rhyme Density',  score: res.scores.rhymeDensity  ?? 60, color: '#8B00FF' },
+          { label: 'Syllable Flow',  score: res.scores.syllableFlow  ?? 65, color: '#00EAFF' },
+          { label: 'Wordplay',       score: res.scores.wordplay       ?? 55, color: '#FF007A' },
+          { label: 'Originality',    score: res.scores.originality    ?? 70, color: '#FFD600' },
+        ]
+      }
+    } catch {
+      // Keep existing analysis values when live analysis request fails.
+    }
+  }, 1200)
 }
 
 async function generate() {
   if (!userLyrics.value && activeMode.value !== 'Generate') return
   isGenerating.value = true
-  // Simulate AI generation delay
-  await new Promise(r => setTimeout(r, 1500))
-  aiOutput.value = `They said I couldn't make it, said my dreams were too far\nNow I'm shining like the cosmos, burning bright like a star\nEvery bar I spit carries weight like a scar\nRising from the concrete to the top — that's who we are
-
-[Alic3X Analysis: Strong AABB scheme | Avg 8.5 syllables/bar | Metaphor density: High]`
-  isGenerating.value = false
+  try {
+    const res = await $fetch<{ type: string; output: string }>('/api/ai/generate', {
+      method: 'POST',
+      body: { mode: activeMode.value, lyrics: userLyrics.value, genre: genre.value, rhymeScheme: rhymeScheme.value },
+    })
+    aiOutput.value = res.output ?? ''
+  } catch (e: unknown) {
+    const err = e as { data?: { statusMessage?: string }; message?: string }
+    aiOutput.value = `[Error: ${err?.data?.statusMessage ?? err?.message ?? 'Something went wrong. Check your GEMINI_API_KEY.'}]`
+  } finally {
+    isGenerating.value = false
+  }
 }
 
+let rhymeDebounce: ReturnType<typeof setTimeout> | null = null
+
 function findRhymes() {
-  if (!rhymeWord.value) {
+  if (!rhymeWord.value?.trim()) {
     rhymeSuggestions.value = []
     return
   }
-  // Stub rhyme suggestions based on ending sound
-  const stubs: Record<string, string[]> = {
-    'a': ['day', 'way', 'say', 'play', 'stay', 'pray', 'ray', 'bay'],
-    'n': ['reign', 'chain', 'plain', 'vain', 'pain', 'rain', 'main', 'gain'],
-    'e': ['free', 'see', 'be', 'me', 'tree', 'key', 'flee', 'sea'],
-  }
-  const lastChar = rhymeWord.value.slice(-1).toLowerCase()
-  rhymeSuggestions.value = stubs[lastChar] || ['flow', 'know', 'show', 'go', 'glow', 'grow', 'low', 'blow']
+  if (rhymeDebounce) clearTimeout(rhymeDebounce)
+  rhymeDebounce = setTimeout(async () => {
+    try {
+      const res = await $fetch<{ rhymes: string[] }>('/api/ai/rhymes', {
+        method: 'POST',
+        body: { word: rhymeWord.value },
+      })
+      rhymeSuggestions.value = res.rhymes ?? []
+    } catch {
+      // Keep current rhyme suggestions when rhyme lookup fails.
+    }
+  }, 400)
 }
 
 function insertRhyme(rhyme: string) {

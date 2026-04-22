@@ -1,10 +1,12 @@
 <template>
-  <p :class="['text-sm', className]">
+  <div :class="cn('text-sm [&_p]:leading-relaxed', className)">
     <slot />
-  </p>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { cn } from '~/lib/utils'
+
 interface Props {
   className?: string
 }

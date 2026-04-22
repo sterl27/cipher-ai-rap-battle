@@ -1,10 +1,12 @@
 <template>
-  <h1 :class="['text-2xl md:text-3xl font-bold tracking-tight', className]">
+  <h3 :class="cn('text-2xl font-semibold leading-none tracking-tight', className)">
     <slot />
-  </h1>
+  </h3>
 </template>
 
 <script setup lang="ts">
+import { cn } from '~/lib/utils'
+
 interface Props {
   className?: string
 }

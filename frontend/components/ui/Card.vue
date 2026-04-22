@@ -1,15 +1,12 @@
 <template>
-  <div
-    :class="[
-      'rounded-xl border border-input/30 bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow',
-      className,
-    ]"
-  >
+  <div :class="cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)">
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
+import { cn } from '~/lib/utils'
+
 interface Props {
   className?: string
 }

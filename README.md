@@ -187,10 +187,12 @@ vercel deploy --prod
 Create `frontend/.env.local` with:
 
 ```env
-# Gemini API
-NUXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+# Server-only AI + Search API keys
+GEMINI_API_KEY=your_gemini_api_key
+GOOGLE_SEARCH_API_KEY=your_google_search_api_key
+GOOGLE_SEARCH_CX=your_google_search_engine_id
 
-# Firebase
+# Firebase (optional)
 NUXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NUXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
@@ -198,12 +200,22 @@ NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NUXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# Optional: Supabase
+# Optional: Supabase (public client)
 NUXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NUXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+# Server-only (never expose to client)
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+HEALTH_CHECK_SECRET=your_internal_health_secret
 ```
 
 See [frontend/.env.example](frontend/.env.example) for full template.
+
+Supabase is configured via:
+- Client plugin: `frontend/plugins/supabase.client.ts`
+- Auth composable: `frontend/composables/useSupabaseAuth.ts`
+- Server Postgres client: `frontend/server/utils/supabase.ts`
+- Health endpoint: `GET /api/supabase/health`
 
 ---
 

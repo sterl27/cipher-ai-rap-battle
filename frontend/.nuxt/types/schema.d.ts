@@ -13,6 +13,14 @@ import { NuxtModule, ModuleDependencyMeta } from '@nuxt/schema'
 
    geminiApiKey: string,
 
+   supabaseServiceRoleKey: string,
+
+   googleSearchApiKey: string,
+
+   googleSearchCx: string,
+
+   healthCheckSecret: string,
+
    nitro: {
       envPrefix: string,
    },
@@ -21,6 +29,10 @@ import { NuxtModule, ModuleDependencyMeta } from '@nuxt/schema'
    appName: string,
 
    appVersion: string,
+
+   supabaseUrl: string,
+
+   supabaseAnonKey: string,
   }
 declare module '@nuxt/schema' {
   interface ModuleDependencies {

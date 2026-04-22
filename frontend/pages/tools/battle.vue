@@ -220,12 +220,6 @@ const aiScoreBreakdown     = ref({ 'Rhyme Scheme': 0, 'Wordplay': 0, 'Flow': 0, 
 
 const barCount = computed(() => playerVerse.value.trim().split('\n').filter(Boolean).length)
 
-const aiVerses = [
-  "I'm neural and I'm lethal, every bar's a masterpiece\nYou brought bars? I brought artillery, this battle's a lease\nCipher's in the building, watch me raise the heat degree\nMy flow is algorithmic, yours is basic A-B-C",
-  "They said machines can't spit — I'm here to prove them wrong\nEvery punchline calculated, every rhythm measured strong\nI've processed every lyric ever written in a song\nYou're stepping to a legend, better hit that gong",
-  "Synthetic with the flow but the fire is real\nEvery word I generate was designed to make you feel\nThe crowd's already feeling it — just check the hype appeal\nYour time is up, step back, let the robot steal the deal",
-]
-
 async function startBattle() {
   gameState.value = 'player-turn'
   timer.value = 30
@@ -250,32 +244,53 @@ async function submitVerse() {
   gameState.value = 'ai-turn'
   aiThinking.value = true
 
-  // Score player
-  const pScore = Math.floor(60 + Math.random() * 35)
-  playerScore.value += pScore
-  playerScoreBreakdown.value = {
-    'Rhyme Scheme': Math.floor(Math.random() * 10 + 15),
-    'Wordplay':     Math.floor(Math.random() * 10 + 15),
-    'Flow':         Math.floor(Math.random() * 10 + 15),
-    'Crowd':        Math.floor(Math.random() * 10 + 15),
+  // Score player (heuristic based on verse length/variety)
+  const lineCount = verse.split('\n').filter(Boolean).length
+  const base = verse === '[skipped — no verse submitted]' ? 5 : Math.min(25, 10 + lineCount * 3)
+  const rnd = () => Math.floor(Math.random() * 8)
+  const breakdown = {
+    'Rhyme Scheme': Math.min(25, base + rnd()),
+    'Wordplay':     Math.min(25, base - 2 + rnd()),
+    'Flow':         Math.min(25, base + rnd()),
+    'Crowd':        Math.min(25, base - 1 + rnd()),
+  }
+  playerScore.value += Object.values(breakdown).reduce((a, b) => a + b, 0)
+  playerScoreBreakdown.value = breakdown
+
+  // Call Gemini for AI verse + scores
+  let aiVerse = "My circuits fire like synapses — I'm built to spit bars\nYou reached for the mic but I'm already reachin' for stars\nEvery line I generate is hotter than a thousand scars\nStep back to your side of the ring — this arena is ours"
+  let aiBreakdown = { 'Rhyme Scheme': 19, 'Wordplay': 18, 'Flow': 20, 'Crowd': 17 }
+
+  try {
+    const { verse, scores } = await $fetch<{
+      verse: string
+      scores: { rhymeScheme: number; wordplay: number; flow: number; crowd: number }
+    }>('/api/ai/battle-verse', {
+      method: 'POST',
+      body: {
+        playerVerse: verse,
+        round: currentRound.value,
+        battleLog: battleLog.value,
+      },
+    })
+    aiVerse = verse
+    aiBreakdown = {
+      'Rhyme Scheme': Math.min(25, scores.rhymeScheme),
+      'Wordplay':     Math.min(25, scores.wordplay),
+      'Flow':         Math.min(25, scores.flow),
+      'Crowd':        Math.min(25, scores.crowd),
+    }
+  } catch {
+    // Fallback to local AI verse and score defaults when API call fails.
   }
 
-  await new Promise(r => setTimeout(r, 2000))
   aiThinking.value = false
-
-  // AI verse
-  const aiVerse = aiVerses[(currentRound.value - 1) % aiVerses.length]
   battleLog.value.push({ id: Date.now() + 1, role: 'ai', round: currentRound.value, verse: aiVerse })
 
   // Score AI
-  const aScore = Math.floor(65 + Math.random() * 30)
+  const aScore = Object.values(aiBreakdown).reduce((a, b) => a + b, 0)
   aiScore.value += aScore
-  aiScoreBreakdown.value = {
-    'Rhyme Scheme': Math.floor(Math.random() * 10 + 15),
-    'Wordplay':     Math.floor(Math.random() * 10 + 15),
-    'Flow':         Math.floor(Math.random() * 10 + 15),
-    'Crowd':        Math.floor(Math.random() * 10 + 15),
-  }
+  aiScoreBreakdown.value = aiBreakdown
 
   // Update hype
   hypeMeter.value = Math.min(100, Math.max(10, 50 + (playerScore.value - aiScore.value) / 5))
