@@ -35,3 +35,4 @@ export { useAnalytics } from '../composables/useAnalytics';
 export { useGoogleSearch, SearchResult } from '../composables/useGoogleSearch';
 export { useSupabaseAuth } from '../composables/useSupabaseAuth';
 export { useVoice } from '../composables/useVoice';
+export { useNuxtDevTools } from '../node_modules/.pnpm/@nuxt+devtools@1.7.0_rollup@4.60.1_vite@7.3.2_@types+node@25.6.0_jiti@2.6.1_terser@5.46_ebd584ffb82f53f1e46f56c2190fdf4c/node_modules/@nuxt/devtools/dist/runtime/use-nuxt-devtools';

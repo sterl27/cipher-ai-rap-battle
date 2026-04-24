@@ -291,3 +291,44 @@ All PRs require review before merge.
 ---
 
 *© 2026 Musaix Pro. Built for creators, by creators.*
+## API Documentation
+
+### AI Assistant (Alic3X)
+- **Endpoint:** `POST /api/chat`
+- **Description:** Interface for the Alic3X PRO creative collaborator.
+- **Payload:** `{ message: string, context?: string }`
+- **Response:** `{ response: string, suggestions: string[] }`
+
+### Lyrical Analysis
+- **Endpoint:** `POST /api/analyze/lyrics`
+- **Description:** Analyzes rhyme schemes and flow patterns.
+- **Payload:** `{ text: string }`
+- **Response:** `{ score: number, patterns: string[], improvements: string[] }`
+
+### Health Check
+- **Endpoint:** `GET /api/supabase/health`
+- **Description:** Verifies database connectivity.
+- **Headers:** `Authorization: Bearer <HEALTH_CHECK_SECRET>`
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Hydration Mismatch** | Ensure components using browser APIs (window, document) are wrapped in `<ClientOnly>` |
+| **API 403/401** | Verify `GEMINI_API_KEY` is correctly set in Vercel environment variables |
+| **Tailwind Styles Missing** | Run `pnpm build` to regenerate the production CSS bundle |
+| **Firebase Auth Error** | Check if the current domain is added to the "Authorized Domains" in Firebase Console |
+
+---
+
+## Contact & Support
+
+- **Developer:** [sterl27](https://github.com/sterl27)
+- **Project Lead:** Musaix Pro Team
+- **Issues:** Please open a GitHub issue for bug reports or feature requests.
+
+---
+
+*Last Updated: January 2026*
