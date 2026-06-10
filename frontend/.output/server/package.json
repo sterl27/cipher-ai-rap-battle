@@ -20,7 +20,7 @@
     "@vue/runtime-dom": "3.5.32",
     "@vue/server-renderer": "3.5.32",
     "@vue/shared": "3.5.32",
-    "devalue": "5.7.1",
+    "devalue": "5.8.1",
     "entities": "7.0.1",
     "estree-walker": "2.0.2",
     "hookable": "6.1.1",
