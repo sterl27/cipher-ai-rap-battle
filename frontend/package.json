@@ -17,15 +17,15 @@
     "@vueuse/nuxt": "^10.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "nuxt": "^3.10.3"
+    "nuxt": "^3.21.7"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.0.0",
+    "@nuxt/devtools": "^3.2.4",
     "@nuxt/eslint-config": "^1.15.2",
     "@nuxtjs/tailwindcss": "^6.11.4",
     "autoprefixer": "^10.4.17",
     "eslint": "^10.2.0",
-    "postcss": "^8.4.35",
+    "postcss": "^8.5.10",
     "tailwindcss": "^3.4.1",
     "tailwind-merge": "^2.5.4",
     "typescript": "^6.0.2"
