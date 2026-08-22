@@ -11,7 +11,7 @@
           "start": "npm run preview --prefix frontend"
     },
     "dependencies": {
-          "concurrently": "^8.0.0"
+          "concurrently": "^10.0.5"
     },
     "devDependencies": {},
     "engines": {
