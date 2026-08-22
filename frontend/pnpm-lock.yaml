@@ -52,8 +52,8 @@ importers:
         specifier: ^2.5.4
         version: 2.6.1
       tailwindcss:
-        specifier: ^3.4.1
-        version: 3.4.19(yaml@2.8.3)
+        specifier: ^4.3.3
+        version: 4.3.3
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -4211,6 +4211,9 @@ packages:
     resolution: {integrity: sha512-3ofp+LL8E+pK/JuPLPggVAIaEuhvIz4qNcf3nA1Xn2o/7fb7s/TYpHhwGDv1ZU3PkBluUVaF8PyCHcm48cKLWQ==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  tailwindcss@4.3.3:
+    resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
 
   tapable@2.3.2:
     resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
@@ -9375,6 +9378,8 @@ snapshots:
     transitivePeerDependencies:
       - tsx
       - yaml
+
+  tailwindcss@4.3.3: {}
 
   tapable@2.3.2: {}
 
